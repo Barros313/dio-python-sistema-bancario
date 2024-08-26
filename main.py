@@ -1,9 +1,13 @@
-# Account variables
+# Define limits
+WITHDRAW_COUNT_LIMITE = 3
+WITHDRAW_VALUE_LIMIT = 500
+
+# Define account values
 balance = 0
-limit = 500
-bank_statement = ""
 withdraw_counter = 0
-WITHDRAW_LIMITE = 3
+
+# Bank statement string
+bank_statement = ""
 
 
 def main():
@@ -29,7 +33,7 @@ def main():
             case "s":
                 withdraw()
             case "e":
-                print_bank_statement()
+                print(bank_statement)
             case "q":
                 break
 
@@ -42,11 +46,35 @@ def withdraw():
 
 
 def deposit():
+    # Get deposit value
+    value = get_float("Insira valor a ser depositado: ")
+
+    # Update balance
+    global balance
+    balance += value
+
+    # Insert transaction into bank statement
+    global bank_statement
+    bank_statement += f"+ {format_currency(value)}"
+
+    # Return
     return None
 
 
-def print_bank_statement():
-    return None
+""" def print_bank_statement():
+    return None """
+
+
+def format_currency(value):
+    # Return formated string
+    return f"R${value:.2f}"
+
+def get_float(message):
+    while True:
+        try:
+            return float(input(message))
+        except ValueError:
+            print("Not a valid number")
 
 
 if __name__ == "__main__":
