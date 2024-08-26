@@ -42,6 +42,36 @@ def main():
 
 
 def withdraw():
+    # Get global variables
+    global balance, withdraw_counter, bank_statement
+
+    # Get withdraw value
+    value = get_float("Insira valor a ser sacado: ")
+
+    # Print error if surpassed withdraw value 
+    if (value > WITHDRAW_VALUE_LIMIT):
+        print(f"Valor solicitado acima do permitido: {format_currency(WITHDRAW_VALUE_LIMIT)}")
+        return None
+    
+    # Print error and exit if withdraw limit reached
+    if (withdraw_counter > WITHDRAW_COUNT_LIMITE):
+        print(f"Limite diário de {WITHDRAW_COUNT_LIMITE} saques atingido")
+        return None
+
+    # Print error if insufficient funds
+    if (value > balance):
+        print("Saldo insuficiente.")
+        return None
+
+
+    # Update balance
+    balance -= value
+
+    # Increment withdraw counter
+    withdraw_counter += 1
+
+    bank_statement += f"- {format_currency(value)}\n"
+
     return None
 
 
@@ -55,7 +85,7 @@ def deposit():
 
     # Insert transaction into bank statement
     global bank_statement
-    bank_statement += f"+ {format_currency(value)}"
+    bank_statement += f"+ {format_currency(value)}\n"
 
     # Return
     return None
@@ -69,9 +99,12 @@ def format_currency(value):
     # Return formated string
     return f"R${value:.2f}"
 
+
 def get_float(message):
+    # Loop until correct value
     while True:
         try:
+            # Return float value
             return float(input(message))
         except ValueError:
             print("Not a valid number")
