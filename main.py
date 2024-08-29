@@ -50,6 +50,11 @@ def withdraw():
     # Get withdraw value
     value = get_float("Insira valor a ser sacado: ")
 
+    # Print error if negative input
+    if (value <= 0):
+        print("Valor inválido.")
+        return None
+
     # Print error if surpassed withdraw value 
     if (value > WITHDRAW_VALUE_LIMIT):
         print(f"Valor solicitado acima do permitido: {format_currency(WITHDRAW_VALUE_LIMIT)}")
