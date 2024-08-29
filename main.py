@@ -91,14 +91,10 @@ def deposit():
 
     # Insert transaction into bank statement
     global bank_statement
-    bank_statement += f"+ {format_currency(value)}\n"
+    bank_statement += f"Depósito: {format_currency(value)}\n"
 
     # Return
     return None
-
-
-""" def print_bank_statement():
-    return None """
 
 
 def format_currency(value):
