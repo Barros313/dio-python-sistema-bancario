@@ -1,10 +1,8 @@
-# Define limits
-WITHDRAW_COUNT_LIMIT = 3
-WITHDRAW_VALUE_LIMIT = 500
-
-
-
 def main():
+    # Define limits
+    WITHDRAW_COUNT_LIMIT = 3
+    WITHDRAW_VALUE_LIMIT = 500
+
     # Define account values
     balance = 0
     withdraw_counter = 0
@@ -20,17 +18,32 @@ def main():
         # Choose operation based on option input
         match option:
             case "d":
+                # Get deposit value
                 value = get_float("Insira o valor a ser depositado: ")
 
+                # Deposit and update variable values
                 balance, bank_statement = deposit(balance, value, bank_statement)
 
-                deposit()
             case "s":
+                # Get withdraw value
+                value = get_float("Insira o valor a ser sacado: ")
+
+                # Withdraw and update varaibles
+                balance, bank_statement = withdraw(
+                    balance=balance,
+                    value=value,
+                    bank_statement=bank_statement,
+                    value_limit=WITHDRAW_VALUE_LIMIT,
+                    withdraw_counter=withdraw_counter,
+                    count_limit=WITHDRAW_COUNT_LIMIT
+                )
+
                 withdraw()
             case "e":
                 print(bank_statement)
             case "q":
                 break
+            
             case _:
                 print("Opção invalida, tente novamente.")
 
@@ -56,31 +69,31 @@ def menu():
 
 
 
-def withdraw():
-    # Get global variables
-    global balance, withdraw_counter, bank_statement
-
-    # Get withdraw value
-    value = get_float("Insira valor a ser sacado: ")
+def withdraw(*, balance, value, bank_statement, value_limit, withdraw_counter, count_limit):
+    # Define errors
+    valid_input = (value > 0)
+    valid_limit = (value < value_limit)
+    valid_counter = (withdraw_counter < count_limit)
+    available_balance = (value < balance)
 
     # Print error if negative input
-    if (value <= 0):
-        print("Valor inválido.")
+    if (not valid_input):
+        print("### Valor inválido. ###")
         return None
 
     # Print error if surpassed withdraw value 
-    if (value > WITHDRAW_VALUE_LIMIT):
-        print(f"Valor solicitado acima do permitido: {format_currency(WITHDRAW_VALUE_LIMIT)}")
+    if (not valid_limit):
+        print(f"### Valor solicitado acima do permitido: {format_currency(value_limit)} ###")
         return None
     
     # Print error and exit if withdraw limit reached
-    if (withdraw_counter > WITHDRAW_COUNT_LIMIT):
-        print(f"Limite diário de {WITHDRAW_COUNT_LIMIT} saques atingido")
+    if (not valid_counter):
+        print(f"### Limite diário de {count_limit} saques atingido ###")
         return None
 
     # Print error if insufficient funds
-    if (value > balance):
-        print("Saldo insuficiente.")
+    if (not available_balance):
+        print("### Saldo insuficiente. ###")
         return None
 
     # Update balance
@@ -89,19 +102,21 @@ def withdraw():
     # Increment withdraw counter
     withdraw_counter += 1
 
+    # Print success message
+    print("--- Valor sacado com sucesso! ---")
+
     # Insert transaction into bank statement
     bank_statement += f"Saque: {format_currency(value)}\n"
 
     # Return
-    return None
+    return balance, bank_statement
 
 
 def deposit(balance, value, bank_statement, /):
-
     # Handle negative value
     if (value <= 0):
         # Print error
-        print("Valor de depósito inválido.")
+        print("### Valor de depósito inválido. ###")
         
         # Return unchaged values
         return balance, bank_statement
@@ -111,6 +126,9 @@ def deposit(balance, value, bank_statement, /):
 
     # Insert transaction into bank statement
     bank_statement += f"Depósito: {format_currency(value)}\n"
+
+    # Print success message
+    print("--- Valor depositado com sucesso! ---")
 
     # Return updated values
     return balance, bank_statement
