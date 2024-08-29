@@ -2,33 +2,28 @@
 WITHDRAW_COUNT_LIMIT = 3
 WITHDRAW_VALUE_LIMIT = 500
 
-# Define account values
-balance = 0
-withdraw_counter = 0
 
-# Bank statement string
-bank_statement = ""
-
-# Menu string template
-MENU = """
-
-[d] Depositar
-[s] Sacar
-[e] Extrato
-[q] Sair
-
-=>"""
 
 def main():
+    # Define account values
+    balance = 0
+    withdraw_counter = 0
+
+    # Bank statement string
+    bank_statement = ""
 
     # Loop through interface until quit
     while True:
         # Get option input from menu
-        option = input(MENU)
+        option = input()
 
         # Choose operation based on option input
         match option:
             case "d":
+                value = get_float("Insira o valor a ser depositado: ")
+
+                balance, bank_statement = deposit(balance, value, bank_statement)
+
                 deposit()
             case "s":
                 withdraw()
@@ -41,6 +36,24 @@ def main():
 
     # End of program
     return None
+
+
+def menu():
+    # Menu string template
+    MENU = """
+    ========== MENU ==========
+    [d]   Depositar
+    [s]   Sacar
+    [e]   Extrato
+    [nc]  Nova Conta
+    [lc]  Listar contas
+    [nu]  Novo usuário
+    [q]   Sair
+
+    =>"""
+
+    print(MENU)
+
 
 
 def withdraw():
@@ -83,24 +96,24 @@ def withdraw():
     return None
 
 
-def deposit():
-    # Get deposit value
-    value = get_float("Insira valor a ser depositado: ")
+def deposit(balance, value, bank_statement, /):
 
+    # Handle negative value
     if (value <= 0):
+        # Print error
         print("Valor de depósito inválido.")
-        return None
+        
+        # Return unchaged values
+        return balance, bank_statement
 
     # Update balance
-    global balance
     balance += value
 
     # Insert transaction into bank statement
-    global bank_statement
     bank_statement += f"Depósito: {format_currency(value)}\n"
 
-    # Return
-    return None
+    # Return updated values
+    return balance, bank_statement
 
 
 def format_currency(value):
@@ -117,6 +130,21 @@ def get_float(message):
         except ValueError:
             print("Not a valid number")
 
+
+def create_user():
+    return None
+
+
+def find_user():
+    return None
+
+
+def create_account():
+    return None
+
+
+def fetch_users():
+    return None
 
 if __name__ == "__main__":
     main()
