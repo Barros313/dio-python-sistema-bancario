@@ -36,6 +36,8 @@ def main():
                 print(bank_statement)
             case "q":
                 break
+            case _:
+                print("Opção invalida, tente novamente.")
 
     # End of program
     return None
