@@ -81,6 +81,10 @@ def deposit():
     # Get deposit value
     value = get_float("Insira valor a ser depositado: ")
 
+    if (value <= 0):
+        print("Valor de depósito inválido.")
+        return None
+
     # Update balance
     global balance
     balance += value
