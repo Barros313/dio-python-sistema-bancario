@@ -1,5 +1,5 @@
 # Define limits
-WITHDRAW_COUNT_LIMITE = 3
+WITHDRAW_COUNT_LIMIT = 3
 WITHDRAW_VALUE_LIMIT = 500
 
 # Define account values
@@ -54,8 +54,8 @@ def withdraw():
         return None
     
     # Print error and exit if withdraw limit reached
-    if (withdraw_counter > WITHDRAW_COUNT_LIMITE):
-        print(f"Limite diário de {WITHDRAW_COUNT_LIMITE} saques atingido")
+    if (withdraw_counter > WITHDRAW_COUNT_LIMIT):
+        print(f"Limite diário de {WITHDRAW_COUNT_LIMIT} saques atingido")
         return None
 
     # Print error if insufficient funds
