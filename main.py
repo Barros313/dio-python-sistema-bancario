@@ -9,22 +9,22 @@ withdraw_counter = 0
 # Bank statement string
 bank_statement = ""
 
+# Menu string template
+MENU = """
 
-def main():
-    # Menu string template
-    menu = """
-
-    [d] Depositar
-    [s] Sacar
-    [e] Extrato
-    [q] Sair
+[d] Depositar
+[s] Sacar
+[e] Extrato
+[q] Sair
 
 =>"""
+
+def main():
 
     # Loop through interface until quit
     while True:
         # Get option input from menu
-        option = input(menu)
+        option = input(MENU)
 
         # Choose operation based on option input
         match option:
