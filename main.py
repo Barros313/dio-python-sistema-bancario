@@ -65,15 +65,16 @@ def withdraw():
         print("Saldo insuficiente.")
         return None
 
-
     # Update balance
     balance -= value
 
     # Increment withdraw counter
     withdraw_counter += 1
 
-    bank_statement += f"- {format_currency(value)}\n"
+    # Insert transaction into bank statement
+    bank_statement += f"Saque: {format_currency(value)}\n"
 
+    # Return
     return None
 
 
