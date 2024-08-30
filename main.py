@@ -7,6 +7,9 @@ def main():
     balance = 0
     withdraw_counter = 0
 
+    # Define users
+    users = []
+
     # Bank statement string
     bank_statement = ""
 
@@ -39,6 +42,12 @@ def main():
 
             case "e":
                 show_bank_statement(balance, bank_statement=bank_statement)
+                                    
+            case "nu":
+                create_user(users)
+
+            case "lc":
+                fetch_users(users)
 
             case "q":
                 break
@@ -64,6 +73,7 @@ def menu():
 
     =>"""
 
+    # Return user input
     return input(MENU)
 
 
@@ -147,12 +157,39 @@ def get_float(message):
             print("Not a valid number")
 
 
-def create_user():
+def create_user(users):
+    # Get user cpf
+    cpf = input("Informe CPF do usuário (apenas números): ")
+
+    # Check if user is already registered
+    current_user = find_user(cpf, users)
+    if current_user:
+        # Print error message and return
+        print(f"### Usuário de CPF {cpf} já cadastrado. ###")
+        return None
+    
+    # Create user dictionary
+    user = dict()
+
+    # Feed dicionary with input
+    user["cpf"] = cpf
+    user["name"] = input("Informe o nome completo do usuário: ")
+    user["birthdate"] = input("Informe a data de nascimento do usuário (dd-mm-aaaa): ")
+    user["address"] = input("Informe o endereço do usuário (logradouro, nro - bairro - cidade/uf): ")
+
+    # Append to list
+    users.append(user)
+
+    # Print success message
+    print("--- Usuário cadastrado com sucesso -- ")
+
+    # Return
     return None
 
 
-def find_user():
-    return None
+def find_user(cpf, users):
+    # Return user if found else return None
+    return [user for user in users if user["cpf"] == cpf]
 
 
 def show_bank_statement(balance, /, *, bank_statement):
@@ -171,8 +208,12 @@ def create_account():
     return None
 
 
-def fetch_users():
+def fetch_users(users):
+    for user in users:
+        print(user)
+
     return None
+
 
 if __name__ == "__main__":
     main()
