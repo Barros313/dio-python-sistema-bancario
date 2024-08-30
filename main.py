@@ -28,17 +28,14 @@ def main():
                 # Get withdraw value
                 value = get_float("Insira o valor a ser sacado: ")
 
-                # Withdraw and update varaibles
-                balance, bank_statement = withdraw(
-                    balance=balance,
-                    value=value,
-                    bank_statement=bank_statement,
-                    value_limit=WITHDRAW_VALUE_LIMIT,
-                    withdraw_counter=withdraw_counter,
-                    count_limit=WITHDRAW_COUNT_LIMIT
+                # Withdraw and update variables
+                balance, bank_statement = withdraw(balance=balance, 
+                                                   value=value, 
+                                                   bank_statement=bank_statement, 
+                                                   value_limit=WITHDRAW_VALUE_LIMIT, 
+                                                   withdraw_counter=withdraw_counter, 
+                                                   count_limit=WITHDRAW_COUNT_LIMIT
                 )
-
-                withdraw()
             case "e":
                 print(bank_statement)
             case "q":
@@ -66,7 +63,6 @@ def menu():
     =>"""
 
     return input(MENU)
-
 
 
 def withdraw(*, balance, value, bank_statement, value_limit, withdraw_counter, count_limit):
@@ -102,11 +98,11 @@ def withdraw(*, balance, value, bank_statement, value_limit, withdraw_counter, c
     # Increment withdraw counter
     withdraw_counter += 1
 
-    # Print success message
-    print("--- Valor sacado com sucesso! ---")
-
     # Insert transaction into bank statement
     bank_statement += f"Saque: {format_currency(value)}\n"
+    
+    # Print success message
+    print("--- Valor sacado com sucesso! ---")
 
     # Return
     return balance, bank_statement
