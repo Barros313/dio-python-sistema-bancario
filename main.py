@@ -13,7 +13,7 @@ def main():
     # Loop through interface until quit
     while True:
         # Get option input from menu
-        option = input()
+        option = menu()
 
         # Choose operation based on option input
         match option:
@@ -65,7 +65,7 @@ def menu():
 
     =>"""
 
-    print(MENU)
+    return input(MENU)
 
 
 
