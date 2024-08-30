@@ -36,8 +36,10 @@ def main():
                                                    withdraw_counter=withdraw_counter, 
                                                    count_limit=WITHDRAW_COUNT_LIMIT
                 )
+
             case "e":
-                print(bank_statement)
+                show_bank_statement(balance, bank_statement=bank_statement)
+
             case "q":
                 break
             
@@ -68,7 +70,7 @@ def menu():
 def withdraw(*, balance, value, bank_statement, value_limit, withdraw_counter, count_limit):
     # Define errors
     valid_input = (value > 0)
-    valid_limit = (value < value_limit)
+    valid_limit = (value <= value_limit)
     valid_counter = (withdraw_counter < count_limit)
     available_balance = (value < balance)
 
@@ -150,6 +152,18 @@ def create_user():
 
 
 def find_user():
+    return None
+
+
+def show_bank_statement(balance, /, *, bank_statement):
+    print(
+f'''
+    \n========== Extrato ==========
+{("Não foram realizadas transações") if not bank_statement else bank_statement}
+Saldo: {format_currency(balance)}
+'''
+)
+
     return None
 
 
