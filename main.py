@@ -7,8 +7,14 @@ def main():
     balance = 0
     withdraw_counter = 0
 
+    AGENCY = "0001"
+
+
     # Define users
     users = []
+
+    # Define accounts
+    accounts = []
 
     # Bank statement string
     bank_statement = ""
@@ -41,13 +47,29 @@ def main():
                 )
 
             case "e":
+                # Call function with bank_statement and balance input
                 show_bank_statement(balance, bank_statement=bank_statement)
                                     
             case "nu":
                 create_user(users)
 
-            case "lc":
+            case "nc":
+                # Get account number based on number of registers
+                account_number = len(accounts) + 1
+
+                # Call create account
+                account = create_account(AGENCY, account_number, users)
+
+                # Check if account creation was successfull
+                if (account):
+                    # Append to list
+                    accounts.append(account)
+
+            case "lu":
                 fetch_users(users)
+
+            case "lc":
+                fetch_accounts(accounts)
 
             case "q":
                 break
@@ -69,6 +91,7 @@ def menu():
     [nc]  Nova Conta
     [lc]  Listar contas
     [nu]  Novo usuário
+    [lu]  Listar usuário
     [q]   Sair
 
     =>"""
@@ -189,7 +212,10 @@ def create_user(users):
 
 def find_user(cpf, users):
     # Return user if found else return None
-    return [user for user in users if user["cpf"] == cpf]
+    user = [user for user in users if user["cpf"] == cpf]
+
+    return user[0] if user else None 
+
 
 
 def show_bank_statement(balance, /, *, bank_statement):
@@ -204,13 +230,55 @@ Saldo: {format_currency(balance)}
     return None
 
 
-def create_account():
+def create_account(agency, account_number, users):
+    # Get CPF
+    cpf = input("Informe o CPF do usuário (apenas números): ")
+
+    # Check for existing user
+    user = find_user(cpf, users)
+
+    if (user):
+        # Print success message
+        print(f"--- Conta com o cpf {cpf} criada com sucesso ---")
+
+        # Return dictionary if user exists
+        return {
+            "agency": agency,
+            "account_number": account_number,
+            "user": user
+        }
+
+    print(f"### Não há cadastros de usuário com o cpf {cpf} ###")
+
     return None
 
 
 def fetch_users(users):
     for user in users:
-        print(user)
+        print(
+f'''
+\n---------------------------------------------------
+CPF: {user["cpf"]}
+Nome: {user["name"]}
+Endereço: {user["address"]}
+Data de Nascimento: {user["birthdate"]}
+---------------------------------------------------\n
+''')
+
+    return None
+
+
+def fetch_accounts(accounts):
+    # Iterate through account list
+    for account in accounts:
+        print(
+f'''
+\n---------------------------------------------------
+Agência: {account["agency"]}
+Número Conta: {account["account_number"]}
+Titular: {account["user"]["name"]}
+---------------------------------------------------\n
+''')
 
     return None
 
