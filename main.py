@@ -1,68 +1,131 @@
-# Define limits
-WITHDRAW_COUNT_LIMITE = 3
-WITHDRAW_VALUE_LIMIT = 500
-
-# Define account values
-balance = 0
-withdraw_counter = 0
-
-# Bank statement string
-bank_statement = ""
-
-
 def main():
-    # Menu string template
-    menu = """
+    # Define limits
+    WITHDRAW_COUNT_LIMIT = 3
+    WITHDRAW_VALUE_LIMIT = 500
 
-    [d] Depositar
-    [s] Sacar
-    [e] Extrato
-    [q] Sair
+    # Define account values
+    balance = 0
+    withdraw_counter = 0
 
-=>"""
+    AGENCY = "0001"
+
+
+    # Define users
+    users = []
+
+    # Define accounts
+    accounts = []
+
+    # Bank statement string
+    bank_statement = ""
 
     # Loop through interface until quit
     while True:
         # Get option input from menu
-        option = input(menu)
+        option = menu()
 
         # Choose operation based on option input
         match option:
             case "d":
-                deposit()
+                # Get deposit value
+                value = get_float("Insira o valor a ser depositado: ")
+
+                # Deposit and update variable values
+                balance, bank_statement = deposit(balance, value, bank_statement)
+
             case "s":
-                withdraw()
+                # Get withdraw value
+                value = get_float("Insira o valor a ser sacado: ")
+
+                # Withdraw and update variables
+                balance, bank_statement = withdraw(balance=balance, 
+                                                   value=value, 
+                                                   bank_statement=bank_statement, 
+                                                   value_limit=WITHDRAW_VALUE_LIMIT, 
+                                                   withdraw_counter=withdraw_counter, 
+                                                   count_limit=WITHDRAW_COUNT_LIMIT
+                )
+
             case "e":
-                print(bank_statement)
+                # Call function with bank_statement and balance input
+                show_bank_statement(balance, bank_statement=bank_statement)
+                                    
+            case "nu":
+                create_user(users)
+
+            case "nc":
+                # Get account number based on number of registers
+                account_number = len(accounts) + 1
+
+                # Call create account
+                account = create_account(AGENCY, account_number, users)
+
+                # Check if account creation was successfull
+                if (account):
+                    # Append to list
+                    accounts.append(account)
+
+            case "lu":
+                fetch_users(users)
+
+            case "lc":
+                fetch_accounts(accounts)
+
             case "q":
                 break
+            
+            case _:
+                print("Opção invalida, tente novamente.")
 
     # End of program
     return None
 
 
-def withdraw():
-    # Get global variables
-    global balance, withdraw_counter, bank_statement
+def menu():
+    # Menu string template
+    MENU = """
+    ========== MENU ==========
+    [d]   Depositar
+    [s]   Sacar
+    [e]   Extrato
+    [nc]  Nova Conta
+    [lc]  Listar contas
+    [nu]  Novo usuário
+    [lu]  Listar usuário
+    [q]   Sair
 
-    # Get withdraw value
-    value = get_float("Insira valor a ser sacado: ")
+    =>"""
+
+    # Return user input
+    return input(MENU)
+
+
+def withdraw(*, balance, value, bank_statement, value_limit, withdraw_counter, count_limit):
+    # Define errors
+    valid_input = (value > 0)
+    valid_limit = (value <= value_limit)
+    valid_counter = (withdraw_counter < count_limit)
+    available_balance = (value < balance)
+
+    # Print error if negative input
+    if (not valid_input):
+        print("### Valor inválido. ###")
+        return None
 
     # Print error if surpassed withdraw value 
-    if (value > WITHDRAW_VALUE_LIMIT):
-        print(f"Valor solicitado acima do permitido: {format_currency(WITHDRAW_VALUE_LIMIT)}")
+    if (not valid_limit):
+        print(f"### Valor solicitado acima do permitido: {format_currency(value_limit)} ###")
         return None
     
     # Print error and exit if withdraw limit reached
-    if (withdraw_counter > WITHDRAW_COUNT_LIMITE):
-        print(f"Limite diário de {WITHDRAW_COUNT_LIMITE} saques atingido")
+    if (not valid_counter):
+        print(f"### Limite diário de {count_limit} saques atingido ###")
         return None
 
     # Print error if insufficient funds
-    if (value > balance):
-        print("Saldo insuficiente.")
+    if (not available_balance):
+        print("### Saldo insuficiente. ###")
         return None
-
 
     # Update balance
     balance -= value
@@ -70,29 +133,36 @@ def withdraw():
     # Increment withdraw counter
     withdraw_counter += 1
 
-    bank_statement += f"- {format_currency(value)}\n"
+    # Insert transaction into bank statement
+    bank_statement += f"Saque: {format_currency(value)}\n"
+    
+    # Print success message
+    print("--- Valor sacado com sucesso! ---")
 
-    return None
+    # Return
+    return balance, bank_statement
 
 
-def deposit():
-    # Get deposit value
-    value = get_float("Insira valor a ser depositado: ")
+def deposit(balance, value, bank_statement, /):
+    # Handle negative value
+    if (value <= 0):
+        # Print error
+        print("### Valor de depósito inválido. ###")
+        
+        # Return unchaged values
+        return balance, bank_statement
 
     # Update balance
-    global balance
     balance += value
 
     # Insert transaction into bank statement
-    global bank_statement
-    bank_statement += f"+ {format_currency(value)}\n"
+    bank_statement += f"Depósito: {format_currency(value)}\n"
 
-    # Return
-    return None
+    # Print success message
+    print("--- Valor depositado com sucesso! ---")
 
-
-""" def print_bank_statement():
-    return None """
+    # Return updated values
+    return balance, bank_statement
 
 
 def format_currency(value):
@@ -108,6 +178,109 @@ def get_float(message):
             return float(input(message))
         except ValueError:
             print("Not a valid number")
+
+
+def create_user(users):
+    # Get user cpf
+    cpf = input("Informe CPF do usuário (apenas números): ")
+
+    # Check if user is already registered
+    current_user = find_user(cpf, users)
+    if current_user:
+        # Print error message and return
+        print(f"### Usuário de CPF {cpf} já cadastrado. ###")
+        return None
+    
+    # Create user dictionary
+    user = dict()
+
+    # Feed dicionary with input
+    user["cpf"] = cpf
+    user["name"] = input("Informe o nome completo do usuário: ")
+    user["birthdate"] = input("Informe a data de nascimento do usuário (dd-mm-aaaa): ")
+    user["address"] = input("Informe o endereço do usuário (logradouro, nro - bairro - cidade/uf): ")
+
+    # Append to list
+    users.append(user)
+
+    # Print success message
+    print("--- Usuário cadastrado com sucesso -- ")
+
+    # Return
+    return None
+
+
+def find_user(cpf, users):
+    # Return user if found else return None
+    user = [user for user in users if user["cpf"] == cpf]
+
+    return user[0] if user else None 
+
+
+
+def show_bank_statement(balance, /, *, bank_statement):
+    print(
+f'''
+    \n========== Extrato ==========
+{("Não foram realizadas transações") if not bank_statement else bank_statement}
+Saldo: {format_currency(balance)}
+'''
+)
+
+    return None
+
+
+def create_account(agency, account_number, users):
+    # Get CPF
+    cpf = input("Informe o CPF do usuário (apenas números): ")
+
+    # Check for existing user
+    user = find_user(cpf, users)
+
+    if (user):
+        # Print success message
+        print(f"--- Conta com o cpf {cpf} criada com sucesso ---")
+
+        # Return dictionary if user exists
+        return {
+            "agency": agency,
+            "account_number": account_number,
+            "user": user
+        }
+
+    print(f"### Não há cadastros de usuário com o cpf {cpf} ###")
+
+    return None
+
+
+def fetch_users(users):
+    for user in users:
+        print(
+f'''
+\n---------------------------------------------------
+CPF: {user["cpf"]}
+Nome: {user["name"]}
+Endereço: {user["address"]}
+Data de Nascimento: {user["birthdate"]}
+---------------------------------------------------\n
+''')
+
+    return None
+
+
+def fetch_accounts(accounts):
+    # Iterate through account list
+    for account in accounts:
+        print(
+f'''
+\n---------------------------------------------------
+Agência: {account["agency"]}
+Número Conta: {account["account_number"]}
+Titular: {account["user"]["name"]}
+---------------------------------------------------\n
+''')
+
+    return None
 
 
 if __name__ == "__main__":
