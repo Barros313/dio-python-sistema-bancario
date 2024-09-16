@@ -1,286 +1,191 @@
+from CheckingAccount import CheckingAccount
+from Deposit import Deposit
+from Person import Person
+from Withdraw import Withdraw
+
 def main():
-    # Define limits
-    WITHDRAW_COUNT_LIMIT = 3
-    WITHDRAW_VALUE_LIMIT = 500
+    clients = list()
+    accounts = list()
 
-    # Define account values
-    balance = 0
-    withdraw_counter = 0
-
-    AGENCY = "0001"
-
-
-    # Define users
-    users = []
-
-    # Define accounts
-    accounts = []
-
-    # Bank statement string
-    bank_statement = ""
-
-    # Loop through interface until quit
     while True:
-        # Get option input from menu
         option = menu()
 
-        # Choose operation based on option input
         match option:
             case "d":
-                # Get deposit value
-                value = get_float("Insira o valor a ser depositado: ")
-
-                # Deposit and update variable values
-                balance, bank_statement = deposit(balance, value, bank_statement)
+                deposit(clients)
 
             case "s":
-                # Get withdraw value
-                value = get_float("Insira o valor a ser sacado: ")
-
-                # Withdraw and update variables
-                balance, bank_statement = withdraw(balance=balance, 
-                                                   value=value, 
-                                                   bank_statement=bank_statement, 
-                                                   value_limit=WITHDRAW_VALUE_LIMIT, 
-                                                   withdraw_counter=withdraw_counter, 
-                                                   count_limit=WITHDRAW_COUNT_LIMIT
-                )
+                withdraw(clients)
 
             case "e":
-                # Call function with bank_statement and balance input
-                show_bank_statement(balance, bank_statement=bank_statement)
-                                    
+                show_bank_statement(clients)
+
             case "nu":
-                create_user(users)
+                create_client(clients)
 
             case "nc":
-                # Get account number based on number of registers
                 account_number = len(accounts) + 1
-
-                # Call create account
-                account = create_account(AGENCY, account_number, users)
-
-                # Check if account creation was successfull
-                if (account):
-                    # Append to list
-                    accounts.append(account)
-
-            case "lu":
-                fetch_users(users)
+                create_account(account_number, clients, accounts)
 
             case "lc":
                 fetch_accounts(accounts)
 
             case "q":
                 break
-            
-            case _:
-                print("Opção invalida, tente novamente.")
 
-    # End of program
+            case _:
+                print("### Operação inválida, por favor tente novamente. ###")
+
     return None
 
 
 def menu():
     # Menu string template
-    MENU = """
-    ========== MENU ==========
-    [d]   Depositar
-    [s]   Sacar
-    [e]   Extrato
-    [nc]  Nova Conta
-    [lc]  Listar contas
-    [nu]  Novo usuário
-    [lu]  Listar usuário
-    [q]   Sair
-
-    =>"""
+    MENU = """\n
+    ================ MENU ================
+    [d] -  Depositar
+    [s] -  Sacar
+    [e] -  Extrato
+    [nc] - Nova conta
+    [lc] - Listar contas
+    [nu] - Novo usuário
+    [q] -  Sair
+    => """
 
     # Return user input
     return input(MENU)
 
 
-def withdraw(*, balance, value, bank_statement, value_limit, withdraw_counter, count_limit):
-    # Define errors
-    valid_input = (value > 0)
-    valid_limit = (value <= value_limit)
-    valid_counter = (withdraw_counter < count_limit)
-    available_balance = (value < balance)
+def find_client(cpf, clients):
+    client_filter = [client for client in clients if client.cpf == cpf]
 
-    # Print error if negative input
-    if (not valid_input):
-        print("### Valor inválido. ###")
-        return None
+    return client_filter[0] if client_filter else None
 
-    # Print error if surpassed withdraw value 
-    if (not valid_limit):
-        print(f"### Valor solicitado acima do permitido: {format_currency(value_limit)} ###")
-        return None
+
+def get_client_account(client):
+    if not client.accounts:
+        print("### O cliente não possui conta! ###")
+        return
     
-    # Print error and exit if withdraw limit reached
-    if (not valid_counter):
-        print(f"### Limite diário de {count_limit} saques atingido ###")
-        return None
+    # FIXME: Client unable to choose account
+    return client.accounts[0]
 
-    # Print error if insufficient funds
-    if (not available_balance):
-        print("### Saldo insuficiente. ###")
-        return None
 
-    # Update balance
-    balance -= value
+def deposit(clients):
+    cpf = input("Informe o CPF do cliente: ")
+    client = find_client(cpf, clients)
 
-    # Increment withdraw counter
-    withdraw_counter += 1
-
-    # Insert transaction into bank statement
-    bank_statement += f"Saque: {format_currency(value)}\n"
+    if not client:
+        print("### Cliente não existe! ###")
+        return
     
-    # Print success message
-    print("--- Valor sacado com sucesso! ---")
+    value = get_float("Informe o valor do depósito: ")
+    transaction = Deposit(value)
 
-    # Return
-    return balance, bank_statement
+    account = get_client_account(client)
 
-
-def deposit(balance, value, bank_statement, /):
-    # Handle negative value
-    if (value <= 0):
-        # Print error
-        print("### Valor de depósito inválido. ###")
-        
-        # Return unchaged values
-        return balance, bank_statement
-
-    # Update balance
-    balance += value
-
-    # Insert transaction into bank statement
-    bank_statement += f"Depósito: {format_currency(value)}\n"
-
-    # Print success message
-    print("--- Valor depositado com sucesso! ---")
-
-    # Return updated values
-    return balance, bank_statement
-
-
-def format_currency(value):
-    # Return formated string
-    return f"R${value:.2f}"
-
-
-def get_float(message):
-    # Loop until correct value
-    while True:
-        try:
-            # Return float value
-            return float(input(message))
-        except ValueError:
-            print("Not a valid number")
-
-
-def create_user(users):
-    # Get user cpf
-    cpf = input("Informe CPF do usuário (apenas números): ")
-
-    # Check if user is already registered
-    current_user = find_user(cpf, users)
-    if current_user:
-        # Print error message and return
-        print(f"### Usuário de CPF {cpf} já cadastrado. ###")
-        return None
+    if not account:
+        return
     
-    # Create user dictionary
-    user = dict()
-
-    # Feed dicionary with input
-    user["cpf"] = cpf
-    user["name"] = input("Informe o nome completo do usuário: ")
-    user["birthdate"] = input("Informe a data de nascimento do usuário (dd-mm-aaaa): ")
-    user["address"] = input("Informe o endereço do usuário (logradouro, nro - bairro - cidade/uf): ")
-
-    # Append to list
-    users.append(user)
-
-    # Print success message
-    print("--- Usuário cadastrado com sucesso -- ")
-
-    # Return
-    return None
+    client.make_transaction(account, transaction)
 
 
-def find_user(cpf, users):
-    # Return user if found else return None
-    user = [user for user in users if user["cpf"] == cpf]
+def withdraw(clients):
+    cpf = input("Informe o CPF do cliente: ")
+    client = find_client(cpf, clients)
 
-    return user[0] if user else None 
+    if not client:
+        print("### Cliente não existe! ###")
+        return
+    
+    value = get_float("Informe o valor do saque: ")
+    transaction = Withdraw(value)
 
+    account = get_client_account(client)
 
-
-def show_bank_statement(balance, /, *, bank_statement):
-    print(
-f'''
-    \n========== Extrato ==========
-{("Não foram realizadas transações") if not bank_statement else bank_statement}
-Saldo: {format_currency(balance)}
-'''
-)
-
-    return None
-
-
-def create_account(agency, account_number, users):
-    # Get CPF
-    cpf = input("Informe o CPF do usuário (apenas números): ")
-
-    # Check for existing user
-    user = find_user(cpf, users)
-
-    if (user):
-        # Print success message
-        print(f"--- Conta com o cpf {cpf} criada com sucesso ---")
-
-        # Return dictionary if user exists
-        return {
-            "agency": agency,
-            "account_number": account_number,
-            "user": user
-        }
-
-    print(f"### Não há cadastros de usuário com o cpf {cpf} ###")
-
-    return None
+    if not account:
+        return
+    
+    client.make_transaction(account, transaction)
 
 
-def fetch_users(users):
-    for user in users:
-        print(
-f'''
-\n---------------------------------------------------
-CPF: {user["cpf"]}
-Nome: {user["name"]}
-Endereço: {user["address"]}
-Data de Nascimento: {user["birthdate"]}
----------------------------------------------------\n
-''')
+def show_bank_statement(clients):
+    cpf = input("Informe o CPF do cliente: ")
+    client = find_client(cpf, clients)
 
-    return None
+    if not client:
+        print("### Cliente não existe! ###")
+        return
+
+    account = get_client_account(client)
+    if not account:
+        return
+    
+    print("\n================ EXTRATO ================")
+    transactions = account.history.transactions
+
+    bank_statement = ""
+
+    if not transactions:
+        bank_statement = "Não foram realizadas movimentações"
+    else:
+        for transaction in transactions:
+            bank_statement += f"\n{transaction['type']}: \n R$ {transaction['value']:.2f}"
+    
+    print(bank_statement)
+    print(f"\n Saldo: R$ {account.balance:.2f}")
+    print("==========================================")
+
+
+def create_client(clients):
+    cpf = input("Informe o CPF de cadastro (apenas números): ")
+    cliente = find_client(cpf, clients)
+
+    if cliente:
+        print("### Cliente já cadastrado! ###")
+        return
+    
+    name = input("Informe o nome completo do cliente: ")
+    birthdate = input("Informe a data de nascimento (dd-mm-aaaa): ")
+    address = input("Informe o endereço (logradouro, nro - bairro - cidade/UF): ")
+
+    client = Person(name=name, birthdate=birthdate, cpf=cpf, address=address)
+
+    clients.append(client)
+
+    print("--- Cliente cadastrado com sucesso! ---")
+
+def create_account(account_number, clients, accounts):
+    cpf = input("Informe o CPF do cliente: ")
+    client = find_client(cpf, clients)
+
+    if not client:
+        print("### Cliente não existe, encerrando criação de conta ###")
+        return
+
+
+    account = CheckingAccount.new_account(client=client, number=account_number)
+
+    accounts.append(account)
+
+    client.accounts.append(account)
+
+    print("--- Conta criada com sucesso! ---")
 
 
 def fetch_accounts(accounts):
-    # Iterate through account list
     for account in accounts:
-        print(
-f'''
-\n---------------------------------------------------
-Agência: {account["agency"]}
-Número Conta: {account["account_number"]}
-Titular: {account["user"]["name"]}
----------------------------------------------------\n
-''')
+        print("=" * 100)
+        print(str(account))
 
-    return None
+
+def get_float(message):
+    while True:
+        try:
+            return float(input(message))
+        except ValueError:
+            print("Valor inválido. Digite um valor numérico!")
+    
 
 
 if __name__ == "__main__":

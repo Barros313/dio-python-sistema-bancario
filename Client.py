@@ -1,10 +1,13 @@
 class Client:
-    def __init__(self, address, accounts):
-        self._address = address
-        self._accounts = accounts
+    # Client attributes
+    def __init__(self, address):
+        self.address = address
+        self.accounts = list()
 
-    def make_transaction(account, transaction):
-        pass
+    # Register transaction
+    def make_transaction(self, account, transaction):
+        transaction.register(account)
 
-    def add_account(account):
-        pass
+    # Add account
+    def add_account(self, account):
+        self.accounts.append(account)
