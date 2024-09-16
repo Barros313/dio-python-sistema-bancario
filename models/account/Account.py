@@ -1,4 +1,4 @@
-from History import History
+from models.transaction.History import History
 
 
 class Account:

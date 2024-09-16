@@ -1,5 +1,5 @@
-from Account import Account
-from Withdraw import Withdraw
+from models.account.Account import Account
+from models.transaction.Withdraw import Withdraw
 
 
 class CheckingAccount(Account):

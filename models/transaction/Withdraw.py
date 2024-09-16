@@ -1,4 +1,4 @@
-from ITransaction import ITransaction
+from models.transaction.ITransaction import ITransaction
 
 
 class Withdraw(ITransaction):

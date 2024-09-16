@@ -1,4 +1,4 @@
-from Client import Client
+from models.person.Client import Client
 
 
 class Person(Client):

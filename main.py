@@ -1,7 +1,7 @@
-from CheckingAccount import CheckingAccount
-from Deposit import Deposit
-from Person import Person
-from Withdraw import Withdraw
+from models.account.CheckingAccount import CheckingAccount
+from models.transaction.Deposit import Deposit
+from models.person.Person import Person
+from models.transaction.Withdraw import Withdraw
 
 def main():
     clients = list()
